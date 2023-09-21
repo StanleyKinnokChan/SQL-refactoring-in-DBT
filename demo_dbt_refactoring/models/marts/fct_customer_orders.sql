@@ -9,20 +9,20 @@ WITH paid_orders AS (
     C.first_name AS customer_first_name, 
     C.last_name AS customer_last_name 
   FROM 
-    orders AS Orders 
+    {{source('sourcename','orders')}} AS orders 
     LEFT JOIN (
       SELECT 
         orderid AS order_id, 
         Max(created) AS payment_finalized_date, 
         Sum(amount) / 100.0 AS total_amount_paid 
       FROM 
-        payments
+        {{ source('sourcename', 'payments') }}
       WHERE 
         status <> 'fail' 
       GROUP BY 
         1
     ) p ON orders.id = p.order_id 
-    LEFT JOIN customers C ON orders.user_id = C.id
+    LEFT JOIN {{ source('sourcename','customers') }} C ON orders.user_id = C.id
 ), 
 customer_orders AS (
   SELECT 
@@ -31,8 +31,8 @@ customer_orders AS (
     Max(order_date) AS most_recent_order_date, 
     Count(orders.id) AS number_of_orders 
   FROM 
-    customers C 
-    LEFT JOIN orders AS Orders ON orders.user_id = C.id 
+    {{ source('sourcename','customers') }} C 
+    LEFT JOIN {{source('sourcename','orders')}} AS orders ON orders.user_id = C.id 
   GROUP BY 
     1
 ) 
