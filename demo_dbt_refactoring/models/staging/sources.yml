@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: sourcename
+    database: DEMO_DBT_REFACTORING
+    schema: ORIGIN
+    tables:
+      - name: customers
+      - name: orders
+      - name: payments
